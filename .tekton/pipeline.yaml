@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: hello-world
+spec:
+  params:
+    - name: message
+      type: string
+      default: "hello from GitHub pipeline"
+  tasks:
+    - name: say-hello
+      taskSpec:
+        params:
+          - name: message
+            type: string
+        steps:
+          - name: echo
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "$(params.message)"
+      params:
+        - name: message
+          value: "$(params.message)"
