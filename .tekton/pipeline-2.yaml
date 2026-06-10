@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
-  generateName: git-resolver-demo-
+  name: pipeline2
 spec:
   pipelineSpec:
     params:
