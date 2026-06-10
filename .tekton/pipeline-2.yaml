@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: git-resolver-demo-
+spec:
+  pipelineSpec:
+    params:
+      - name: message
+        type: string
+        default: "hello from git resolver"
+    tasks:
+      - name: say-hello-from-git
+        taskRef:
+          resolver: git
+          params:
+            - name: url
+              value: https://github.com/candialane/cicd.git
+            - name: revision
+              value: "0.1"
+            - name: path
+              value: tasks/hello.yaml
+        params:
+          - name: message
+            value: "$(params.message)"
+  params:
+    - name: message
+      value: "hello from candialane/cicd 0.1"
