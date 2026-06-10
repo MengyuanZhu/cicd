@@ -140,8 +140,6 @@ spec:
       params:
         - name: message
           value: "$(params.message)"
-        - name: platform
-          value: "$(params.platform)"
 
     - name: publish-artifacts
       runAfter:
