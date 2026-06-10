@@ -16,7 +16,7 @@ spec:
             value: https://github.com/candialane/cicd.git
           - name: revision
             value: "0.1"
-          - name: path
+          - name: pathInRepo
             value: tasks/hello.yaml
       params:
         - name: message
