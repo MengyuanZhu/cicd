@@ -1,0 +1,21 @@
+# This Task is here as the file you can copy into your Git repo at:
+# examples/tekton/tasks/hello-task.yaml
+#
+# Do not apply this second document together with the PipelineRun if you want to
+# prove the Task is resolved from Git. It is included only as source content for
+# your remote Git file.
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: hello-task
+spec:
+  params:
+    - name: message
+      type: string
+      default: "hello"
+  steps:
+    - name: echo
+      image: alpine:3.20
+      script: |
+        #!/bin/sh
+        echo "$(params.message)"
