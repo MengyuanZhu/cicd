@@ -1,23 +1,25 @@
 apiVersion: tekton.dev/v1
-kind: Pipeline
+kind: Task
 metadata:
-  name: pipeline2
+  name: hello-task
 spec:
   params:
     - name: message
       type: string
-      default: "hello from candialane/cicd 0.1"
-  tasks:
-    - name: say-hello-from-git
-      taskRef:
-        resolver: git
-        params:
-          - name: url
-            value: https://github.com/candialane/cicd.git
-          - name: revision
-            value: "0.1"
-          - name: pathInRepo
-            value: tasks/hello.yaml
-      params:
-        - name: message
-          value: "$(params.message)"
+      default: "hello"
+  stepTemplate:
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      runAsNonRoot: true
+      runAsUser: 65532
+      seccompProfile:
+        type: RuntimeDefault
+  steps:
+    - name: echo
+      image: alpine:3.20
+      script: |
+        #!/bin/sh
+        echo "$(params.message)"
