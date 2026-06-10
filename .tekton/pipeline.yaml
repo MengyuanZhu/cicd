@@ -1,72 +1,161 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: hello-world
+  name: complex-dag-demo
 spec:
   params:
     - name: message
       type: string
-      default: "hello from GitHub pipeline"
+      default: "hello world"
   tasks:
-    - name: prepare-message
+    - name: read-cache
       taskSpec:
         params:
           - name: message
             type: string
         results:
-          - name: formatted-message
-            description: Message normalized for later tasks.
+          - name: cache-hit
+            description: Whether a dependency cache was found.
         steps:
-          - name: format
+          - name: read
             image: alpine:3.20
             script: |
               #!/bin/sh
-              set -eu
-
-              message="$(params.message)"
-              printf "Prepared message: %s\n" "$message"
-              printf "%s" "$message" > "$(results.formatted-message.path)"
+              echo "$(params.message): read cache"
+              printf "true" > "$(results.cache-hit.path)"
       params:
         - name: message
           value: "$(params.message)"
 
-    - name: say-hello
+    - name: use-node-26
       runAfter:
-        - prepare-message
+        - read-cache
       taskSpec:
         params:
           - name: message
             type: string
         steps:
-          - name: echo
+          - name: setup
             image: alpine:3.20
             script: |
               #!/bin/sh
-              set -eu
-
-              echo "$(params.message)"
+              echo "$(params.message): use node 26"
+              echo "cache hit: $(tasks.read-cache.results.cache-hit)"
       params:
         - name: message
-          value: "$(tasks.prepare-message.results.formatted-message)"
+          value: "$(params.message)"
 
-    - name: summarize
+    - name: lint
       runAfter:
-        - say-hello
+        - use-node-26
       taskSpec:
         params:
           - name: message
             type: string
         steps:
-          - name: summary
+          - name: lint
             image: alpine:3.20
             script: |
               #!/bin/sh
-              set -eu
-
-              message="$(params.message)"
-              echo "Pipeline completed successfully."
-              echo "Final message: $message"
-              echo "Message length: ${#message}"
+              echo "$(params.message): lint"
       params:
         - name: message
-          value: "$(tasks.prepare-message.results.formatted-message)"
+          value: "$(params.message)"
+
+    - name: integration-testing
+      runAfter:
+        - use-node-26
+      taskSpec:
+        params:
+          - name: message
+            type: string
+        steps:
+          - name: test
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "$(params.message): integration testing"
+      params:
+        - name: message
+          value: "$(params.message)"
+
+    - name: performance-testing
+      runAfter:
+        - use-node-26
+      taskSpec:
+        params:
+          - name: message
+            type: string
+        steps:
+          - name: benchmark
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "$(params.message): performance testing"
+      params:
+        - name: message
+          value: "$(params.message)"
+
+    - name: security-testing
+      runAfter:
+        - use-node-26
+      taskSpec:
+        params:
+          - name: message
+            type: string
+        steps:
+          - name: scan
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "$(params.message): security testing"
+      params:
+        - name: message
+          value: "$(params.message)"
+
+    - name: build-docker-image
+      runAfter:
+        - lint
+        - integration-testing
+        - performance-testing
+        - security-testing
+      matrix:
+        params:
+          - name: platform
+            value:
+              - linux/amd64
+              - linux/arm64
+      taskSpec:
+        params:
+          - name: message
+            type: string
+          - name: platform
+            type: string
+        steps:
+          - name: build
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "$(params.message): build docker image for $(params.platform)"
+      params:
+        - name: message
+          value: "$(params.message)"
+        - name: platform
+          value: "$(params.platform)"
+
+    - name: publish-artifacts
+      runAfter:
+        - build-docker-image
+      taskSpec:
+        params:
+          - name: message
+            type: string
+        steps:
+          - name: publish
+            image: alpine:3.20
+            script: |
+              #!/bin/sh
+              echo "$(params.message): publish artifacts"
+      params:
+        - name: message
+          value: "$(params.message)"
