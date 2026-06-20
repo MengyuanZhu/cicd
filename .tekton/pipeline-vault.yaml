@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: vault-broker-demo
+  labels:
+    app.kubernetes.io/part-of: tekton-ui-vault-demo
+spec:
+  params:
+    - name: secret-path
+      type: string
+      default: secret/test
+  tasks:
+    - name: read-vault-test-secret
+      taskSpec:
+        results:
+          - name: vault-read-status
+            description: "ok when broker token exchange and Vault secret read both succeed."
+        steps:
+          - name: read-test-secret
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/MengyuanZhu/cicd.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepAction/vault-broker-read-secret.yaml
+            params:
+              - name: secret-path
+                value: "$(params.secret-path)"
+              - name: result-path
+                value: "$(results.vault-read-status.path)"
