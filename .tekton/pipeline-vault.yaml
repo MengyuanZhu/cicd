@@ -26,6 +26,11 @@ spec:
                   value: main
                 - name: pathInRepo
                   value: stepAction/vault-broker-read-secret.yaml
+            env:
+              - name: SECRET_PATH
+                value: "$(params.secret-path)"
+              - name: RESULT_PATH
+                value: "$(results.vault-read-status.path)"
             params:
               - name: secret-path
                 value: "$(params.secret-path)"
