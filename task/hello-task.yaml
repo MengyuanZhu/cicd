@@ -1,0 +1,26 @@
+# This Task is here as the file you can copy into your Git repo at:
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: hello-task
+spec:
+  params:
+    - name: message
+      type: string
+      default: "hello"
+  stepTemplate:
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      runAsNonRoot: true
+      runAsUser: 65532
+      seccompProfile:
+        type: RuntimeDefault
+  steps:
+    - name: echo
+      image: alpine:3.20
+      script: |
+        #!/bin/sh
+        echo "$(params.message)"
