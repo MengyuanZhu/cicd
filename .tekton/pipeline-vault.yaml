@@ -17,7 +17,7 @@ spec:
       default: value
     - name: reveal-secret-value
       type: string
-      default: "false"
+      default: "true"
   tasks:
     - name: read-vault-test-secret
       taskSpec:
