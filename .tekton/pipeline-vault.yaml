@@ -8,7 +8,7 @@ spec:
   params:
     - name: secret-path
       type: string
-      default: secret/test
+      default: kv/test
   tasks:
     - name: read-vault-test-secret
       taskSpec:
