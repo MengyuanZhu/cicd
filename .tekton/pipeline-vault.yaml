@@ -3,12 +3,21 @@ kind: Pipeline
 metadata:
   name: vault-broker-demo
   labels:
-    app.kubernetes.io/part-of: tekton-ui-vault-demo
+    app.kubernetes.io/part-of: maestro-vault-demo
 spec:
   params:
     - name: secret-path
       type: string
       default: kv/test
+    - name: kv-engine-version
+      type: string
+      default: auto
+    - name: secret-key
+      type: string
+      default: value
+    - name: reveal-secret-value
+      type: string
+      default: "false"
   tasks:
     - name: read-vault-test-secret
       taskSpec:
@@ -29,5 +38,11 @@ spec:
             params:
               - name: secret-path
                 value: "$(params.secret-path)"
+              - name: kv-engine-version
+                value: "$(params.kv-engine-version)"
+              - name: secret-key
+                value: "$(params.secret-key)"
+              - name: reveal-secret-value
+                value: "$(params.reveal-secret-value)"
               - name: result-path
                 value: "$(results.vault-read-status.path)"
